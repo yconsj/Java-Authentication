@@ -1,7 +1,9 @@
+package server;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-public interface ServerInterface extends Remote {
+public interface Printer extends Remote {
     <T> T executeTask(Task<T> t) throws RemoteException;
 
     /* NOTE: Maybe not void return type */
