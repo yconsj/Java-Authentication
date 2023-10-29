@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\simon\\OneDrive\\DTU\\Kandidat\\Data Security\\Java-Authentication\\json-simple-1.1.1.jar"
+    ]
+}
