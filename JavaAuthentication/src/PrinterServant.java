@@ -8,6 +8,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 
 import java.security.PublicKey;
+import java.text.ParseException;
 
 public class PrinterServant extends UnicastRemoteObject implements PrinterService {
     ApplicationServer server;
@@ -48,25 +49,25 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
     }
 
     @Override
-    public void print(String encryptedMessage) throws RemoteException, IllegalBlockSizeException, BadPaddingException {
+    public void print(String encryptedMessage) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         String[] parts = MessageProcessor.processEncryptedMessage(encryptedMessage, server);
         printDecrypted(parts[0], parts[1], parts[2], parts[3]);
     }
 
     public void printDecrypted(String filename, String printer, String sessionId, String username)
-            throws RemoteException {
+            throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         if (server.validateRequest(username, sessionId)) {
             System.out.println("print(String " + filename + ", String " + printer + ")");
         }
     }
 
     @Override
-    public void queue(String encryptedMessage) throws RemoteException, IllegalBlockSizeException, BadPaddingException {
+    public void queue(String encryptedMessage) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         String[] parts = MessageProcessor.processEncryptedMessage(encryptedMessage, server);
         queueDecrypted(parts[0], parts[1], parts[2]);
     }
 
-    public void queueDecrypted(String printer, String sessionId, String username) throws RemoteException {
+    public void queueDecrypted(String printer, String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         if (server.validateRequest(username, sessionId)) {
             System.out.println("queue(String " + printer + ")");
         }
@@ -74,7 +75,7 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 
     @Override
     public void topQueue(String encryptedMessage)
-            throws RemoteException, IllegalBlockSizeException, BadPaddingException {
+            throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         String[] parts = MessageProcessor.processEncryptedMessage(encryptedMessage, server);
         // Assuming that parts[1] can be converted to an integer value representing the
         // job number
@@ -82,31 +83,31 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
         topQueueDecrypted(parts[0], job, parts[2], parts[3]);
     }
 
-    public void topQueueDecrypted(String printer, int job, String sessionId, String username) throws RemoteException {
+    public void topQueueDecrypted(String printer, int job, String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         if (server.validateRequest(username, sessionId)) {
             System.out.println("topQueue(String " + printer + ", int " + job + ")");
         }
     }
 
     @Override
-    public void start(String encryptedMessage) throws RemoteException, IllegalBlockSizeException, BadPaddingException {
+    public void start(String encryptedMessage) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         String[] parts = MessageProcessor.processEncryptedMessage(encryptedMessage, server);
         startDecrypted(parts[0], parts[1]);
     }
 
-    public void startDecrypted(String sessionId, String username) throws RemoteException {
+    public void startDecrypted(String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         if (server.validateRequest(username, sessionId)) {
             System.out.println("start()");
         }
     }
 
     @Override
-    public void stop(String encryptedMessage) throws RemoteException, IllegalBlockSizeException, BadPaddingException {
+    public void stop(String encryptedMessage) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         String[] parts = MessageProcessor.processEncryptedMessage(encryptedMessage, server);
         stopDecrypted(parts[0], parts[1]);
     }
 
-    public void stopDecrypted(String sessionId, String username) throws RemoteException {
+    public void stopDecrypted(String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         if (server.validateRequest(username, sessionId)) {
             System.out.println("stop()");
         }
@@ -114,24 +115,24 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 
     @Override
     public void restart(String encryptedMessage)
-            throws RemoteException, IllegalBlockSizeException, BadPaddingException {
+            throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         String[] parts = MessageProcessor.processEncryptedMessage(encryptedMessage, server);
         restartDecrypted(parts[0], parts[1]);
     }
 
-    public void restartDecrypted(String sessionId, String username) throws RemoteException {
+    public void restartDecrypted(String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         if (server.validateRequest(username, sessionId)) {
             System.out.println("restart()");
         }
     }
 
     @Override
-    public void status(String encryptedMessage) throws RemoteException, IllegalBlockSizeException, BadPaddingException {
+    public void status(String encryptedMessage) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         String[] parts = MessageProcessor.processEncryptedMessage(encryptedMessage, server);
         statusDecrypted(parts[0], parts[1], parts[2]);
     }
 
-    public void statusDecrypted(String printer, String sessionId, String username) throws RemoteException {
+    public void statusDecrypted(String printer, String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         if (server.validateRequest(username, sessionId)) {
             System.out.println("status(String " + printer + ")");
         }
@@ -139,20 +140,19 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 
     @Override
     public void readConfig(String encryptedMessage)
-            throws RemoteException, IllegalBlockSizeException, BadPaddingException {
+            throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         String[] parts = MessageProcessor.processEncryptedMessage(encryptedMessage, server);
         readConfigDecrypted(parts[0], parts[1], parts[2]);
     }
 
-    public void readConfigDecrypted(String parameter, String sessionId, String username) throws RemoteException {
+    public void readConfigDecrypted(String parameter, String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         if (server.validateRequest(username, sessionId)) {
             System.out.println("readConfig(String " + parameter + ")");
         }
     }
 
     @Override
-    public void setConfig(String encryptedMessage)
-            throws RemoteException, IllegalBlockSizeException, BadPaddingException {
+    public void setConfig(String encryptedMessage) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException {
         String[] parts = MessageProcessor.processEncryptedMessage(encryptedMessage, server);
         if (server.validateRequest(parts[3], parts[2])) {
             System.out.println("setConfig(String " + parts[0] + ", String " + parts[1] + ")");

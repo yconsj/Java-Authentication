@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.text.ParseException;
 import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
@@ -16,7 +17,7 @@ import javax.crypto.SecretKey;
 
 public class client {
     static Cipher encryptCipher;
-    public static void main(String[] args) throws MalformedURLException, NotBoundException, RemoteException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+    public static void main(String[] args) throws MalformedURLException, NotBoundException, RemoteException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, ParseException {
         AuthenticationService authService = (AuthenticationService) Naming.lookup("rmi://localhost:5099/auth");
         PrinterService service = (PrinterService) Naming.lookup("rmi://localhost:5099/print");
         String sessionId = null;
@@ -27,11 +28,6 @@ public class client {
         PublicKey serverPublicKey = service.getPublicKey();
         encryptCipher = Cipher.getInstance("RSA");
         encryptCipher.init(Cipher.ENCRYPT_MODE, serverPublicKey);
-
-        //create a symmetric key
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        keyGen.init(256);
-        SecretKey secretKey = keyGen.generateKey();
 
         /* Try to login */
         String encryptedLoginString = prepareEncryptedInput(username, password);
@@ -76,8 +72,6 @@ public class client {
         String encryptedReadConfig = prepareEncryptedInput(parameter, sessionId, username);
         service.readConfig(encryptedReadConfig);
 
-        String encryptedLoginMessage = prepareEncryptedInput(username, password);
-        service.testEncryption(encryptedLoginMessage);
 
     }
 
