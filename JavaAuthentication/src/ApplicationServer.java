@@ -20,7 +20,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -122,7 +121,7 @@ public class ApplicationServer {
         sessionTime.setTime(sessionDate);
         sessionTime.add(Calendar.HOUR_OF_DAY, hours);
 
-        return now.after(sessionTime);
+        return now.before(sessionTime);
     }
 
 

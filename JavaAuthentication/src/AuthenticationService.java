@@ -3,7 +3,6 @@ import java.rmi.RemoteException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.SecretKey;
 
 public interface AuthenticationService extends Remote {
 

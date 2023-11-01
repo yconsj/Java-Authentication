@@ -1,10 +1,7 @@
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 
 import java.security.PublicKey;
@@ -26,7 +23,7 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
     @Override
     public void testEncryption(String encryptedMessage)
             throws RemoteException, IllegalBlockSizeException, BadPaddingException {
-        String decryptedMessage = server.decryptMessage(encryptedMessage);
+        String decryptedMessage = ApplicationServer.decryptMessage(encryptedMessage);
         String[] parts = decryptedMessage.split("ඞ");
         // Printing all parts
         for (String part : parts) {

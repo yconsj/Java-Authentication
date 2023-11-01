@@ -3,7 +3,6 @@ import java.rmi.server.UnicastRemoteObject;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.SecretKey;
 
 public class AuthenticationServant extends UnicastRemoteObject implements AuthenticationService {
     ApplicationServer server;
