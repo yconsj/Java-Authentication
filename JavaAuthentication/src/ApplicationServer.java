@@ -3,37 +3,32 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 public class ApplicationServer {
     private static ApplicationServer server = null;
     String currSessionID = null;
     static JSONObject logins;
     private static HashMap<String, String> currentLogins = new HashMap<String, String>();
     Random random = new Random();
-    static PrivateKey privateKey;
-    static PublicKey publicKey;
-    static Cipher decryptCipher;
-    static Cipher encryptCipher;
+    static MessageDigest md;
 
     /* singleton */
     public static synchronized ApplicationServer getServer() {
@@ -42,19 +37,30 @@ public class ApplicationServer {
         }
         return server;
     }
-
+    public static String toHexString(byte[] hash)
+    {
+        // Convert byte array into signum representation
+        BigInteger number = new BigInteger(1, hash);
+ 
+        // Convert message digest into hex value
+        StringBuilder hexString = new StringBuilder(number.toString(16));
+ 
+        // Pad with leading zeros
+        while (hexString.length() < 64)
+        {
+            hexString.insert(0, '0');
+        }
+ 
+        return hexString.toString();
+    }
+     public static byte[] getSHA(String input) throws NoSuchAlgorithmException
+    {
+        return md.digest(input.getBytes(StandardCharsets.UTF_8));
+    }
     public static void main(String[] args) throws RemoteException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        /* Generate public private key */
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(2048);
-
-        KeyPair kp = kpg.generateKeyPair();
-        privateKey = kp.getPrivate();
-        publicKey = kp.getPublic();
-        decryptCipher = Cipher.getInstance("RSA");
-        decryptCipher.init(Cipher.DECRYPT_MODE, privateKey);
-        encryptCipher = Cipher.getInstance("RSA");
-        encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        // Static getInstance method is called with hashing SHA
+        md = MessageDigest.getInstance("SHA-256");
+ 
 
         /* create json logins */
         logins = new JSONObject();
@@ -64,13 +70,7 @@ public class ApplicationServer {
         } catch (Exception e) {
             System.out.println("couldnt find file");
         }
-
-        //encrypt user password:
-        String userPassword = (String) logins.get("user1");
-        byte[] encryptedBytes = encryptCipher.doFinal(userPassword.getBytes());
-        String encryptedPW = Base64.getEncoder().encodeToString(encryptedBytes);
-        logins.replace("user1", encryptedPW);
-
+        
         Registry registry = LocateRegistry.createRegistry(5099);
 
         registry.rebind("auth", new AuthenticationServant(getServer()));
@@ -88,8 +88,10 @@ public class ApplicationServer {
     public String loginRequest(String username, String password) {
         /* check if login is correct */
         try {
-            String p = decryptMessage((String) logins.get(username));
-            if (p.equals(password)) {
+            String stored_password = (String) logins.get(username);
+            String encryped_p = toHexString(getSHA(password));
+            System.out.println(password + " " + encryped_p);
+            if (encryped_p.equals(stored_password)) {
                 // TODO save login.
                 String sk = "SI_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
                         + "_" + random.nextInt(10000);
@@ -103,12 +105,6 @@ public class ApplicationServer {
         }
     }
 
-    public static String decryptMessage(String encryptedMessage) throws IllegalBlockSizeException, BadPaddingException {
-        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedMessage);
-        byte[] decryptedBytes = decryptCipher.doFinal(encryptedBytes);
-        String decryptedMessage = new String(decryptedBytes);
-        return decryptedMessage;
-    }
 
     public static boolean checkSessionId(String sessionId, int hours) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -124,9 +120,5 @@ public class ApplicationServer {
         return now.before(sessionTime);
     }
 
-
-    public PublicKey getPublicKey() {
-        return publicKey;
-    }
 
 }

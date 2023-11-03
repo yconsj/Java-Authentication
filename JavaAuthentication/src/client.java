@@ -4,7 +4,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.text.ParseException;
 import java.util.Base64;
 
@@ -22,14 +21,9 @@ public class client {
         String username = "user1";
         String password = "correctpassword";
 
-        //get public key from server
-        PublicKey serverPublicKey = service.getPublicKey();
-        encryptCipher = Cipher.getInstance("RSA");
-        encryptCipher.init(Cipher.ENCRYPT_MODE, serverPublicKey);
 
-        /* Try to login */
-        String encryptedLoginString = prepareEncryptedInput(username, password);
-        sessionId = authService.login(encryptedLoginString);
+
+        sessionId = authService.login(username,password);
         if (sessionId != null) {
             System.out.println("Successfully logged in!");
         } else {
@@ -43,32 +37,24 @@ public class client {
         String parameter = "paramenter";
         String value = "ready";
         
-        String encryptedPrint = prepareEncryptedInput(filename, printername, sessionId, username);
-        service.print(encryptedPrint);
+
+        service.print(filename, printername, sessionId, username);
     
-        String encryptedQueue = prepareEncryptedInput(filename, sessionId, username);
-        service.queue(encryptedQueue);
+        service.queue(filename, sessionId, username);
 
-        String encryptedTopQueue = prepareEncryptedInput(printername, String.valueOf(jobNumber), sessionId, username);
-        service.topQueue(encryptedTopQueue);
+        service.topQueue(printername, jobNumber, sessionId, username);
 
-        String encryptedStart = prepareEncryptedInput(sessionId, username);
-        service.start(encryptedStart);
+        service.start(sessionId, username);
 
-        String encryptedStop = prepareEncryptedInput(sessionId, username);
-        service.stop(encryptedStop);
+        service.stop(sessionId, username);
 
-        String encryptedRestart = prepareEncryptedInput(sessionId, username);
-        service.restart(encryptedRestart);
+        service.restart(sessionId, username);
 
-        String encryptedStatus = prepareEncryptedInput(printername, sessionId, username);
-        service.status(encryptedStatus);
+        service.status(printername, sessionId, username);
 
-        String encryptedSetConfig = prepareEncryptedInput(parameter, value, sessionId, username);
-        service.setConfig(encryptedSetConfig);
+        service.setConfig(parameter, value, sessionId, username);
 
-        String encryptedReadConfig = prepareEncryptedInput(parameter, sessionId, username);
-        service.readConfig(encryptedReadConfig);
+        service.readConfig(parameter, sessionId, username);
 
 
     }

@@ -16,10 +16,7 @@ public class AuthenticationServant extends UnicastRemoteObject implements Authen
         return "echo";
     }
 
-    public String login(String encryptedLoginString) throws RemoteException, IllegalBlockSizeException, BadPaddingException  {
-        String[] parts = MessageProcessor.processEncryptedMessage(encryptedLoginString, server);
-        String username = parts[0];
-        String password = parts[1];
+    public String login(String username, String password) throws RemoteException, IllegalBlockSizeException, BadPaddingException  {
         return server.loginRequest(username, password);
     }
 }
