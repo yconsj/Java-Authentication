@@ -1,60 +1,40 @@
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.text.ParseException;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 public interface PrinterService extends Remote {
 
-    public String echo(String input, String sessionId, String username) throws RemoteException;
+// echoes the encrypted message back to the caller
+public String echo(String message, String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException;
 
-    public void print(String filename, String printer, String sessionId, String username) throws RemoteException; // prints
-                                                                                                                  // file
-                                                                                                                  // filename
-                                                                                                                  // on
-                                                                                                                  // the
-                                                                                                                  // specified
-                                                                                                                  // printer
+// prints the encrypted file message
+public void print(String filename, String printer, String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException ; // prints file filename on the specified printer
 
-    public void queue(String printer, String sessionId, String username) throws RemoteException; // lists the print
-                                                                                                 // queue for a given
-                                                                                                 // printer on the
-                                                                                                 // user's display in
-                                                                                                 // lines of the form
-                                                                                                 // <job number> <file
-                                                                                                 // name>
+// lists the print queue for a given printer with the encrypted message
+public void queue(String printer, String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException; // lists the print queue for a given printer on the user's display in lines of the form <job number> <file name>
 
-    public void topQueue(String printer, int job, String sessionId, String username) throws RemoteException; // moves
-                                                                                                             // job to
-                                                                                                             // the top
-                                                                                                             // of the
-                                                                                                             // queue
+// moves the job specified in the encrypted message to the top of the queue
+public void topQueue(String printer, int job, String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException; // moves job to the top of the queue
 
-    public void start(String sessionId, String username) throws RemoteException; // starts the print server
+// starts the print server with the encrypted session message
+public void start(String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException ; // starts the print server
 
-    public void stop(String sessionId, String username) throws RemoteException; // stops the print server
+// stops the print server with the encrypted session message
+public void stop(String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException; // stops the print server
 
-    public void restart(String sessionId, String username) throws RemoteException; // stops the print server, clears the
-                                                                                   // print queue and starts the print
-                                                                                   // server again
+// restarts the print server with the encrypted session message
+public void restart(String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException; // stops the print server, clears the print queue and starts the print server again
 
-    public void status(String printer, String sessionId, String username) throws RemoteException; // prints status of
-                                                                                                  // printer on the
-                                                                                                  // user's display
+// prints the status of the printer with the encrypted message
+public void status(String encryptedMessage, String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException; // prints status of printer on the user's display
 
-    public void readConfig(String parameter, String sessionId, String username) throws RemoteException; // prints the
-                                                                                                        // value of the
-                                                                                                        // parameter on
-                                                                                                        // the print
-                                                                                                        // server to the
-                                                                                                        // user's
-                                                                                                        // display
+// reads the configuration for the parameter specified in the encrypted message
+public void readConfig(String parameter, String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException ; // prints the value of the parameter on the print server to the user's display
 
-    public void setConfig(String parameter, String value, String sessionId, String username) throws RemoteException; // sets
-                                                                                                                     // the
-                                                                                                                     // parameter
-                                                                                                                     // on
-                                                                                                                     // the
-                                                                                                                     // print
-                                                                                                                     // server
-                                                                                                                     // to
-                                                                                                                     // value
+// sets the configuration of the print server with the encrypted message
+public void setConfig(String parameter, String value, String sessionId, String username) throws RemoteException, IllegalBlockSizeException, BadPaddingException, ParseException; // sets the parameter on the print server to value
+
 
 }

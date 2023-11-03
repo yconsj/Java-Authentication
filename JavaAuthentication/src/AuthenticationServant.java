@@ -1,6 +1,9 @@
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+
 public class AuthenticationServant extends UnicastRemoteObject implements AuthenticationService {
     ApplicationServer server;
 
@@ -13,7 +16,7 @@ public class AuthenticationServant extends UnicastRemoteObject implements Authen
         return "echo";
     }
 
-    public String login(String username, String password) throws RemoteException {
+    public String login(String username, String password) throws RemoteException, IllegalBlockSizeException, BadPaddingException  {
         return server.loginRequest(username, password);
     }
 }
