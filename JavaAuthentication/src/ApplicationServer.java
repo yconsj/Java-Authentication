@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.UUID;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -38,7 +39,11 @@ public class ApplicationServer {
         return server;
     }
 
-    public static String toHexString(byte[] hash) {
+    private static String genSalt() {
+        return UUID.randomUUID().toString();
+    }
+
+    private static String toHexString(byte[] hash) {
         // Convert byte array into signum representation
         BigInteger number = new BigInteger(1, hash);
 
@@ -53,7 +58,7 @@ public class ApplicationServer {
         return hexString.toString();
     }
 
-    public static byte[] getSHA(String input) throws NoSuchAlgorithmException {
+    private static byte[] getSHA(String input) throws NoSuchAlgorithmException {
         return md.digest(input.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -66,10 +71,18 @@ public class ApplicationServer {
         logins = new JSONObject();
         JSONParser parser = new JSONParser();
         try {
-            logins = (JSONObject) parser.parse(new FileReader("src\\PUBLICPASSWORDS.json"));
+            logins = (JSONObject) parser.parse(new FileReader("src\\Credentials.json"));
         } catch (Exception e) {
             System.out.println("couldnt find file");
         }
+
+        /* Printing paswords hasing with salt */
+        // System.out.println("password: MyPassword");
+        // String newsalt = genSalt();
+        // System.out.println("salt: " + newsalt);
+        // System.out.println("password hashed: " + toHexString(getSHA("MyPassword")));
+        // System.out.println("password hashed with salt: " +
+        // toHexString(getSHA("MyPassword" + newsalt)));
 
         Registry registry = LocateRegistry.createRegistry(5099);
 
@@ -89,19 +102,22 @@ public class ApplicationServer {
     public String loginRequest(String username, String password) {
         /* check if login is correct */
         try {
-            String stored_password = (String) logins.get(username);
-            String encryped_p = toHexString(getSHA(password));
-            System.out.println(password + " " + encryped_p);
-            if (encryped_p.equals(stored_password)) {
-                // TODO save login.
+            /* find stored hash */
+            String stored_password = (String) ((JSONObject) logins.get(username)).get("password");
+            /* construction the hash to verify */
+            String p_hash = toHexString(
+                    getSHA(password + (String) ((JSONObject) logins.get(username)).get("salt")));
+            if (p_hash.equals(stored_password)) {
+                System.out.println("Access granted!");
                 String sk = "SI_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
                         + "_" + random.nextInt(10000);
                 currentLogins.put(username, sk);
                 return sk;
             } else
-                return null;
+                System.out.println("Wrong password");
+            return null;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Wrong username");
             return null;
         }
     }
