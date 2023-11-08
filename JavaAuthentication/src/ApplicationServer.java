@@ -1,4 +1,6 @@
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -15,6 +17,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -105,6 +108,24 @@ public class ApplicationServer {
         }
     }
 
+    public boolean checkAccess(String username, String ops) {
+        /* maybe move out of function */
+        JSONObject access = new JSONObject();
+        JSONParser parser = new JSONParser();
+        try {
+            access = (JSONObject) parser.parse(new FileReader("JavaAuthentication\\src\\AccessControlList.json"));
+            JSONArray perms = (JSONArray) access.get(username);
+            for(Object elem :  perms){
+                if (elem.equals(ops)){
+                    return true;
+                }
+            }
+        /* fail */
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public static boolean checkSessionId(String sessionId, int hours) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");

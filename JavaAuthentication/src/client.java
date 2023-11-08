@@ -18,9 +18,8 @@ public class client {
         AuthenticationService authService = (AuthenticationService) Naming.lookup("rmi://localhost:5099/auth");
         PrinterService service = (PrinterService) Naming.lookup("rmi://localhost:5099/print");
         String sessionId = null;
-        String username = "user1";
-        String password = "correctpassword";
-
+        String username = "David";
+        String password = "davidpassword";
 
 
         sessionId = authService.login(username,password);
