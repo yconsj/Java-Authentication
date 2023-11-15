@@ -16,13 +16,14 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-
+import java.util.*;
 public class ApplicationServer {
     private static ApplicationServer server = null;
     String currSessionID = null;
@@ -30,7 +31,60 @@ public class ApplicationServer {
     private static HashMap<String, String> currentLogins = new HashMap<String, String>();
     Random random = new Random();
     static MessageDigest md;
+    private static HashMap<String,ArrayList<String>> mappedRoles = new HashMap<String,ArrayList<String>>();
 
+
+    private static ArrayList<String> loadRole(String key){
+        JSONObject file = new JSONObject();
+        JSONParser parser = new JSONParser();
+        ArrayList<String> res = new ArrayList<>();
+        try {
+            file = (JSONObject) parser.parse(new FileReader("JavaAuthentication\\src\\Roles.json"));
+                        
+            JSONObject h = (JSONObject)(file.get(key));
+    
+
+            JSONArray perms = (JSONArray) h.get("permissions");
+            
+            for (Object perm : perms){
+                res.add((String) perm);
+            }
+
+            String parent =  (String) ((JSONObject)file.get(key)).get("parent");
+            if (!parent.equals("")){
+                res.addAll(loadRole(parent)); //resurive add parent roles
+            }
+
+
+
+        }catch (Exception e){
+            System.out.println("loadRole error: " + e.toString());
+        }
+
+        return res; // return role
+    }
+    private static void loadRoles(){
+        JSONObject file = new JSONObject();
+        JSONParser parser = new JSONParser();
+        mappedRoles = new HashMap<>(); //reset map
+        try {
+            file = (JSONObject) parser.parse(new FileReader("JavaAuthentication\\src\\Roles.json"));
+
+           Object roles[] = file.keySet().toArray();
+
+           for(Object role : roles){
+                mappedRoles.put((String)role, loadRole((String)role));
+
+
+           }
+
+        }catch (Exception e){
+            System.out.println("loadRoles error: " + e.toString());
+        }
+
+
+  
+    }
     /* singleton */
     public static synchronized ApplicationServer getServer() {
         if (server == null) {
@@ -71,11 +125,11 @@ public class ApplicationServer {
         logins = new JSONObject();
         JSONParser parser = new JSONParser();
         try {
-            logins = (JSONObject) parser.parse(new FileReader("src\\Credentials.json"));
+            logins = (JSONObject) parser.parse(new FileReader("JavaAuthentication\\src\\Credentials.json"));
         } catch (Exception e) {
             System.out.println("couldnt find file");
         }
-
+        loadRoles();
         /* Printing paswords hasing with salt */
         // System.out.println("password: MyPassword");
         // String newsalt = genSalt();
@@ -134,6 +188,27 @@ public class ApplicationServer {
         sessionTime.add(Calendar.HOUR_OF_DAY, hours);
 
         return now.before(sessionTime);
+    }
+
+    public boolean checkAccess(String username, String ops) {
+        /* maybe move out of function */
+        JSONObject access = new JSONObject();
+        JSONParser parser = new JSONParser();
+        try {
+            access = (JSONObject) parser.parse(new FileReader("JavaAuthentication\\src\\Credentials.json"));
+            String role = (String) ((JSONObject)access.get(username)).get("role");
+            ArrayList<String> perms = mappedRoles.get(role);
+
+            
+            if (perms.contains(ops)){
+                return true;
+            }
+            return false;
+        /* fail */
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

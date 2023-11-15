@@ -1,0 +1,16 @@
+{"RoleUser":{
+    "permissions": ["print", "queue"],
+    "parent": ""
+},
+"RolePower":{
+    "permissions": ["topQueue", "restart"],
+    "parent": "RoleUser"
+},
+"RoleSuper":{
+    "permissions": ["start", "stop", "status", "readConfig", "setConfig"],
+    "parent": "RolePower"
+},
+"RoleTech":{
+    "permissions": ["start", "stop", "restart", "status", "readConfig", "setConfig"],
+    "parent": ""
+}}
